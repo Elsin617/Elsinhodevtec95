@@ -1,35 +1,55 @@
 <!DOCTYPE html>
+<html lang="pt-BR">
 <head>
+	<meta charset="UTF-8">
 	<title>Calculadora IMC</title>
 	<style>
 		body {
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			height: 100vh;
+			min-height: 100vh;
 			font-family: Arial;
-			background: #ccc
+			background: linear-gradient(135deg, #2738F5 0%, #6C5CE7 100%);
+			margin: 0;
 		}
-		
-		div {
+
+		.card {
 			display: flex;
 			flex-direction: column;
 			width: 400px;
 			border: 1px solid #fafafa;
-			padding: 15px 25px;
-			border-radius: 10px;
+			padding: 25px 25px 30px;
+			border-radius: 16px;
 			background: #fafafa;
 			overflow: hidden;
+			box-shadow: 0 20px 40px rgba(0,0,0,0.25);
 		}
-		
+
 		h1 {
 			text-align: center;
+			margin-top: 0;
+		}
+
+		label {
+			font-size: 14px;
+			color: #333;
+			margin-bottom: 4px;
 		}
 
 		input {
-			height: 25px;
-			margin-bottom: 10px;
-			padding: 0 5px;
+			height: 32px;
+			margin-bottom: 14px;
+			padding: 0 10px;
+			border: 1px solid #ccc;
+			border-radius: 6px;
+			font-size: 15px;
+			transition: border-color 0.2s;
+		}
+
+		input:focus {
+			outline: none;
+			border-color: #2738F5;
 		}
 
 		button {
@@ -37,71 +57,211 @@
 			font-size: 15px;
 			text-transform: uppercase;
 			font-weight: 700;
-			margin: 15px 0;
+			margin: 15px 0 5px;
 			border: 0;
 			border-radius: 10px;
 			background: #2738F5;
 			color: #fff;
-			cursor: pointer
+			cursor: pointer;
+			transition: background 0.2s, transform 0.1s;
 		}
 
+		button:hover {
+			background: #1c2ad1;
+		}
+
+		button:active {
+			transform: scale(0.98);
+		}
+
+		/* Resultado */
+		#resultado {
+			display: none;
+			text-align: center;
+			border-radius: 10px;
+			padding: 16px;
+			margin-top: 5px;
+			animation: aparecer 0.3s ease;
+		}
+
+		@keyframes aparecer {
+			from { opacity: 0; transform: translateY(-8px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+
+		#resultado .emoji-resultado {
+			font-size: 36px;
+			display: block;
+			margin-bottom: 6px;
+		}
+
+		#resultado .valor-imc {
+			font-size: 28px;
+			font-weight: 800;
+			display: block;
+		}
+
+		#resultado .situacao {
+			font-size: 16px;
+			font-weight: 700;
+			display: block;
+			margin-top: 2px;
+		}
+
+		/* Barra de escala do IMC */
+		.barra-container {
+			margin-top: 14px;
+		}
+
+		.barra {
+			position: relative;
+			height: 12px;
+			width: 100%;
+			border-radius: 6px;
+			background: linear-gradient(to right,
+				#54A0FF 0%, #54A0FF 14%,
+				#48DBFB 14%, #48DBFB 21%,
+				#1DD1A1 21%, #1DD1A1 40%,
+				#FECA57 40%, #FECA57 55%,
+				#FF9F43 55%, #FF9F43 65%,
+				#EE5253 65%, #EE5253 100%);
+			overflow: visible;
+		}
+
+		.ponteiro {
+			position: absolute;
+			top: -6px;
+			width: 4px;
+			height: 24px;
+			background: #222;
+			border-radius: 2px;
+			transform: translateX(-50%);
+			transition: left 0.4s ease;
+		}
+
+		/* Categorias de cor de fundo do card de resultado */
+		.cor-muitoabaixo { background: #d6ecff; color: #1a5fa3; }
+		.cor-abaixo { background: #e4f9ff; color: #17879e; }
+		.cor-normal { background: #dcf8ef; color: #10825e; }
+		.cor-acima { background: #fff6d9; color: #a3781a; }
+		.cor-obesidade1 { background: #ffe9d6; color: #b35c11; }
+		.cor-obesidade2 { background: #ffdede; color: #b3221e; }
+		.cor-obesidade3 { background: #ffd0d0; color: #8f0f0c; }
+
+		.aviso {
+			display: none;
+			text-align: center;
+			color: #b3221e;
+			background: #ffdede;
+			border-radius: 8px;
+			padding: 10px;
+			font-size: 14px;
+			margin-top: 5px;
+		}
 	</style>
 </head>
 <body>
-	<div>
+	<div class="card">
 		<h1>Calculadora de IMC</h1>
 
-		<label for="altura">Digite sua altura:</label>
-		<input type="number" id="altura">
-	
-		<label for="peso">Digite seu peso:</label>
-		<input type="number" id="peso">
+		<label for="altura">Digite sua altura (m):</label>
+		<input type="number" id="altura" placeholder="Ex: 1.70" step="0.01">
+
+		<label for="peso">Digite seu peso (kg):</label>
+		<input type="number" id="peso" placeholder="Ex: 65">
 
 		<button id="calcular">Calcular</button>
+
+		<div id="aviso" class="aviso">⚠️ Preencha altura e peso com valores válidos.</div>
+
+		<div id="resultado">
+			<span class="emoji-resultado" id="emojiResultado"></span>
+			<span class="valor-imc" id="valorImc"></span>
+			<span class="situacao" id="situacaoTexto"></span>
+
+			<div class="barra-container">
+				<div class="barra">
+					<div class="ponteiro" id="ponteiro"></div>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<script>
 		var calcular = document.getElementById("calcular");
+		var resultadoDiv = document.getElementById("resultado");
+		var avisoDiv = document.getElementById("aviso");
+		var emojiResultado = document.getElementById("emojiResultado");
+		var valorImc = document.getElementById("valorImc");
+		var situacaoTexto = document.getElementById("situacaoTexto");
+		var ponteiro = document.getElementById("ponteiro");
 
 		calcular.addEventListener("click", () => {
-
-			//obter altura
+			// obter altura
 			var altura = +document.getElementById("altura").value;
-
-			//obter peso
+			// obter peso
 			var peso = +document.getElementById("peso").value;
 
-			//calcular o IMC, utilizando a altura e o peso informados
+			// validação simples
+			if (!altura || !peso || altura <= 0 || peso <= 0) {
+				avisoDiv.style.display = "block";
+				resultadoDiv.style.display = "none";
+				return;
+			}
+			avisoDiv.style.display = "none";
+
+			// calcular o IMC, utilizando a altura e o peso informados
 			var imc = peso / (altura * altura);
 
-			//com IMC calculado, encontrar a situação na tabela. Se o resultado for:
+			// com IMC calculado, encontrar a situação, emoji e cor na tabela
 			var situacao = "";
+			var emoji = "";
+			var classeCor = "";
 
-			// abaixo de 1 então a situação é Muito Abaixo do peso
-			if (imc < 17)
+			if (imc < 17) {
 				situacao = "Muito abaixo do peso";
-			//entre 17 e 18,49 então a situação é  Abaixo do peso
-			else if (imc >= 17 && imc <= 18.49)
+				emoji = "🥺";
+				classeCor = "cor-muitoabaixo";
+			} else if (imc >= 17 && imc <= 18.49) {
 				situacao = "Abaixo do Peso";
-			//entre 18,50 e 24,99 então a situação é Peso Normal
-			else if (imc >= 18.5 && imc <= 24.99)
+				emoji = "🙂";
+				classeCor = "cor-abaixo";
+			} else if (imc >= 18.5 && imc <= 24.99) {
 				situacao = "Peso Normal";
-			//entre 25 e 29,99 então a situação é Acima do Peso
-			else if (imc >= 25 &&  imc <= 29.99)
+				emoji = "😄";
+				classeCor = "cor-normal";
+			} else if (imc >= 25 && imc <= 29.99) {
 				situacao = "Acima do Peso";
-			//entre 30 e 34,99 então a situação é Obesidade I
-			else if (imc >= 30 && imc <= 34.99)
+				emoji = "😐";
+				classeCor = "cor-acima";
+			} else if (imc >= 30 && imc <= 34.99) {
 				situacao = "Obesidade I";
-			//entre 35 e 39,99 então a situação é Obesidade II (Severa)
-			else if (imc >= 35 && imc <= 39.99)
+				emoji = "😟";
+				classeCor = "cor-obesidade1";
+			} else if (imc >= 35 && imc <= 39.99) {
 				situacao = "Obesidade II (Severa)";
-			//Acima de 40 então a situação é Obesidade III (mórbida)
-			else if (imc >=40)
+				emoji = "😰";
+				classeCor = "cor-obesidade2";
+			} else {
 				situacao = "Obesidade III (Mórbida)";
+				emoji = "🚨";
+				classeCor = "cor-obesidade3";
+			}
 
-			//Exibir Situação
-			alert(situacao);
+			// exibir resultado na página
+			emojiResultado.textContent = emoji;
+			valorImc.textContent = "IMC: " + imc.toFixed(1);
+			situacaoTexto.textContent = situacao;
+
+			resultadoDiv.className = classeCor;
+			resultadoDiv.style.display = "block";
+
+			// posicionar ponteiro na barra (escala visual de 10 a 45)
+			var imcMin = 10, imcMax = 45;
+			var imcLimitado = Math.max(imcMin, Math.min(imc, imcMax));
+			var porcentagem = ((imcLimitado - imcMin) / (imcMax - imcMin)) * 100;
+			ponteiro.style.left = porcentagem + "%";
 		});
-
 	</script>
 </body>
+</html>
